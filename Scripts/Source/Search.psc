@@ -3,30 +3,6 @@ scriptName Search
 - multiple search provider
 - multiple actions based on the search type}
 
-function EnsureConfig() global
-    if ! JDB.solveObj(".search.config")
-        ReloadConfig()
-    endIf
-endFunction
-
-function ReloadConfig() global
-    JDB.solveObjSetter(                                 \
-        ".search.config",                               \
-        JValue.readFromFile("Data/Search/Config.json"), \
-        createMissingKeys = true                        \
-    )
-endFunction
-
-string[] function GetSearchProviderNames() global
-    int searchProviders = JDB.solveObj(".search.config.search_providers")
-    if searchProviders
-        return JArray.asStringArray(searchProviders)
-    else
-        string[] providerNames
-        return providerNames        
-    endIf
-endFunction
-
 int function GetSearchResultHistory() global
     int history = JDB.solveObj(".search.history")
     if ! history
@@ -44,15 +20,7 @@ function ClearSearchResultHistory() global
     JArray.clear(GetSearchResultHistory())
 endFunction
 
-int function ExecuteQuery(string query, float timeout = 10.0, float waitInterval = 0.1, bool autoLoadConfig = true) global
-    if autoLoadConfig
-        ; Load Search script configuration from disk
-        EnsureConfig()
-    endIf
-
-    ; Get all of the providers to search
-    string[] providerNames = GetSearchProviderNames()
-
+int function ExecuteQuery(string query, string[] searchProviderNames, float timeout = 10.0, float waitInterval = 0.1) global
     ; Object representing the search results for this query at this time
     int searchResults = JMap.object()
     JArray.addObj(GetSearchResultHistory(), searchResults)
@@ -67,8 +35,8 @@ int function ExecuteQuery(string query, float timeout = 10.0, float waitInterval
 
     ; Send the search query event (separate for each provider)
     int i = 0
-    while i < providerNames.Length
-        int searchEvent = ModEvent.Create("SearchQuery_" + providerNames[i])
+    while i < searchProviderNames.Length
+        int searchEvent = ModEvent.Create("SearchQuery_" + searchProviderNames[i])
         ModEvent.PushString(searchEvent, query)
         ModEvent.PushInt(searchEvent, providerResults)
         ModEvent.Send(searchEvent)
@@ -79,10 +47,10 @@ int function ExecuteQuery(string query, float timeout = 10.0, float waitInterval
     bool searchComplete = false
     float searchStartTime = Utility.GetCurrentRealTime()
     while ! searchComplete && (Utility.GetCurrentRealTime() - searchStartTime) < timeout
-        if JArray.count(providerResults) == providerNames.Length
+        if JArray.count(providerResults) == searchProviderNames.Length
             i = 0
             bool allDone = true
-            while i < providerNames.Length && allDone
+            while i < searchProviderNames.Length && allDone
                 int thisProviderResult = JArray.getObj(providerResults, i)
                 bool isDone = JMap.getStr(thisProviderResult, "done") == "true"
                 if ! isDone
