@@ -60,15 +60,47 @@ event OnSearchAction(int actionInfo)
     JValue.release(actionInfo)
 endEvent
 
+int function GetSearchResult(int resultInfo)
+    return JMap.getObj(resultInfo, "searchResult")
+endFunction
+
 int function GetSearchResults(int resultInfo)
     return JMap.getObj(resultInfo, "searchResults")
 endFunction
 
-Form[] function GetAllFormsForCategories(int resultInfo)
+string function GetCategoryName(int resultInfo)
+    return JMap.getStr(resultInfo, "categoryName")
+endFunction
+
+Form[] function GetAllForms(int resultInfo)
     int theForms = JArray.object()
     JValue.retain(theForms)
 
-    string[] desiredCategoryNames = JArray.asStringArray(JMap.getObj(JMap.getObj(resultInfo, "action"), "categories"))
+    int categoriesArray
+    string[] desiredCategoryNames
+    string categoryName = GetCategoryName(resultInfo)
+
+    if categoryName
+        desiredCategoryNames    = new string[1]
+        desiredCategoryNames[0] = categoryName
+    else
+        categoriesArray = JMap.getObj(JMap.getObj(resultInfo, "action"), "categories")
+        if categoriesArray
+            desiredCategoryNames = JArray.asStringArray(categoriesArray)
+        endIf
+    endIf
+
+    int searchResult = GetSearchResult(resultInfo)
+    if searchResult
+        string formId = Search.GetResultFormId(searchResult)
+        Form theForm  = FormHelper.HexToForm(formId)
+        if theForm
+            JArray.addForm(theForms, theForm)
+        endIf
+        Form[] theFormArray = JArray.asFormArray(theForms)
+        JValue.release(theForms)
+        return theFormArray
+    endIf
 
     int searchResults        = GetSearchResults(resultInfo)
     int searchResultSetCount = Search.GetSearchResultSetCount(searchResults)
@@ -79,11 +111,11 @@ Form[] function GetAllFormsForCategories(int resultInfo)
         int searchResultSetCategoryIndex = 0
         while searchResultSetCategoryIndex < searchResultSetCategoryNames.Length
             string searchResultSetCategoryName = searchResultSetCategoryNames[searchResultSetCategoryIndex]
-            if desiredCategoryNames.Find(searchResultSetCategoryName) > -1
+            if ! desiredCategoryNames || desiredCategoryNames.Find(searchResultSetCategoryName) > -1
                 int searchResultSetCategoryResultCount = Search.GetCategoryResultCountForSearchResultSet(searchResultSet, searchResultSetCategoryName)
                 int searchResultSetCategoryResultIndex = 0
                 while searchResultSetCategoryResultIndex < searchResultSetCategoryResultCount
-                    int searchResult = Search.GetNthCategoryResultForSearchResultSet(searchResultSet, searchResultSetCategoryName, searchResultSetCategoryResultIndex)
+                    searchResult = Search.GetNthCategoryResultForSearchResultSet(searchResultSet, searchResultSetCategoryName, searchResultSetCategoryResultIndex)
                     string formId    = Search.GetResultFormId(searchResult)
                     Form theForm     = FormHelper.HexToForm(formId)
                     if theForm
