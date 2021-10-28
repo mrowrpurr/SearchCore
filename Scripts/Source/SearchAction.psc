@@ -21,6 +21,12 @@ string property ActionName
     endFunction
 endProperty
 
+Actor property PlayerRef
+    Actor function get()
+        return GetActorReference()
+    endFunction
+endProperty
+
 event OnInit()
     OnActionInit()
     RegisterForModEvent("Search_Action_" + ActionName, "OnSearchAction")
@@ -43,31 +49,35 @@ event OnActionInit()
 endEvent
 
 ; Override this to implement a custom action
-event OnAction(int resultInfo)
+event OnAction(int actionInfo)
     ; Intended to be overriden
 endEvent
 
 ; DO NOT OVERRIDE THIS ~ use `OnAction()` instead
-event OnSearchAction(string actionName, int searchResults, string categoryName, int searchResultSet, int searchResult)
-    int resultInfo = JMap.object()
-    JMap.setObj(resultInfo, "searchResult", searchResult)
-    JMap.setObj(resultInfo, "searchResults", searchResults)
-    JMap.setObj(resultInfo, "searchResultSet", searchResultSet)
-    JMap.setStr(resultInfo, "categoryName", categoryName)
-    JValue.retain(resultInfo)
-    OnAction(resultInfo)
-    JValue.release(resultInfo)
+event OnSearchAction(int actionInfo)
+    Debug.MessageBox("On Search Action " + actionInfo)
+    JValue.retain(actionInfo)
+    OnAction(actionInfo)
+    JValue.release(actionInfo)
 endEvent
 
-; Form function GetForm(int resultInfo) global
-; endFunction
+Form[] function GetAllForms(int resultInfo)
 
-; string function GetFormId(int resultInfo) global
-; endFunction
+    ; TODO
 
-string function GetEditorId(int resultInfo)
-    return JMap.getStr(JMap.getObj(JMap.getObj(resultInfo, "searchResult"), "data"), "editorId")
 endFunction
 
-; string function GetProviderName(int resultInfo) global
+
+
+; Form function GetForm(int resultInfo)
+; endFunction
+
+; string function GetFormId(int resultInfo)
+; endFunction
+
+string function GetEditorId(int actionInfo)
+    return JMap.getStr(JMap.getObj(JMap.getObj(actionInfo, "searchResult"), "data"), "editorId")
+endFunction
+
+; string function GetProviderName(int resultInfo)
 ; endFunction
