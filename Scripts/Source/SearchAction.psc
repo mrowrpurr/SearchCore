@@ -55,16 +55,52 @@ endEvent
 
 ; DO NOT OVERRIDE THIS ~ use `OnAction()` instead
 event OnSearchAction(int actionInfo)
-    Debug.MessageBox("On Search Action " + actionInfo)
     JValue.retain(actionInfo)
     OnAction(actionInfo)
     JValue.release(actionInfo)
 endEvent
 
-Form[] function GetAllForms(int resultInfo)
+int function GetSearchResults(int resultInfo)
+    return JMap.getObj(resultInfo, "searchResults")
+endFunction
 
-    ; TODO
+Form[] function GetAllFormsForCategories(int resultInfo)
+    int theForms = JArray.object()
+    JValue.retain(theForms)
 
+    string[] desiredCategoryNames = JArray.asStringArray(JMap.getObj(JMap.getObj(resultInfo, "action"), "categories"))
+
+    int searchResults        = GetSearchResults(resultInfo)
+    int searchResultSetCount = Search.GetSearchResultSetCount(searchResults)
+    int searchResultSetIndex = 0
+    while searchResultSetIndex < searchResultSetCount
+        int searchResultSet = Search.GetNthSearchResultSet(searchResults, searchResultSetIndex)
+        string[] searchResultSetCategoryNames = Search.GetCategoryNamesForSearchResultSet(searchResultSet)
+        int searchResultSetCategoryIndex = 0
+        while searchResultSetCategoryIndex < searchResultSetCategoryNames.Length
+            string searchResultSetCategoryName = searchResultSetCategoryNames[searchResultSetCategoryIndex]
+            if desiredCategoryNames.Find(searchResultSetCategoryName) > -1
+                int searchResultSetCategoryResultCount = Search.GetCategoryResultCountForSearchResultSet(searchResultSet, searchResultSetCategoryName)
+                int searchResultSetCategoryResultIndex = 0
+                while searchResultSetCategoryResultIndex < searchResultSetCategoryResultCount
+                    int searchResult = Search.GetNthCategoryResultForSearchResultSet(searchResultSet, searchResultSetCategoryName, searchResultSetCategoryResultIndex)
+                    string formId    = Search.GetResultFormId(searchResult)
+                    Form theForm     = FormHelper.HexToForm(formId)
+                    if theForm
+                        JArray.addForm(theForms, theForm)
+                    endIf
+                    searchResultSetCategoryResultIndex += 1
+                endWhile
+            endIf
+            searchResultSetCategoryIndex += 1
+        endWhile
+        searchResultSetIndex += 1
+    endWhile
+
+    Form[] theFormArray = JArray.asFormArray(theForms)
+    JValue.release(theForms)
+
+    return theFormArray
 endFunction
 
 

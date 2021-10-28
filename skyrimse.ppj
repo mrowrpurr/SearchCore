@@ -20,6 +20,7 @@
         <Import>@ImportsFolder\ConsoleUtil\Scripts\Source</Import>
 
         <Import>@ModsFolder\ConsoleSearch\Scripts\Source</Import>
+        <Import>@ModsFolder\Form Helper\Scripts\Source</Import>
 
         <Import>C:\Steam\steamapps\common\Skyrim Special Edition\Data\Scripts\Source</Import>
     </Imports>

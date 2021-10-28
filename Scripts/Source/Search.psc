@@ -142,3 +142,15 @@ endFunction
 string function GetResultDisplayText(int result) global
     return JMap.getStr(result, "displayText")
 endFunction
+
+string function GetResultDataString(int result, string propertyName) global
+    return JMap.getStr(JMap.getObj(result, "data"), propertyName)
+endFunction
+
+string function GetResultFormId(int result) global
+    return GetResultDataString(result, "formId")
+endFunction
+
+string function GetResultEditorId(int result) global
+    return GetResultDataString(result, "editorId")
+endFunction
