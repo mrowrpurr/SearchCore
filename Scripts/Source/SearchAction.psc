@@ -149,3 +149,7 @@ endFunction
 Form function GetForm(int actionInfo)
     return FormHelper.HexToForm(GetFormId(actionInfo))
 endFunction
+
+bool function IsSearchResult(int actionInfo)
+    return GetSearchResult(actionInfo)
+endFunction
