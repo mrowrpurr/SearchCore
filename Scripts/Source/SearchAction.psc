@@ -55,9 +55,12 @@ endEvent
 
 ; DO NOT OVERRIDE THIS ~ use `OnAction()` instead
 event OnSearchAction(int actionInfo)
-    JValue.retain(actionInfo)
-    OnAction(actionInfo)
-    JValue.release(actionInfo)
+    string eventActionName = JMap.getStr(JMap.getObj(actionInfo, "action"), "action")
+    if eventActionName == ActionName
+        JValue.retain(actionInfo)
+        OnAction(actionInfo)
+        JValue.release(actionInfo)
+    endIf
 endEvent
 
 int function GetSearchResult(int resultInfo)
@@ -144,7 +147,7 @@ endFunction
 ; endFunction
 
 string function GetEditorId(int actionInfo)
-    return JMap.getStr(JMap.getObj(JMap.getObj(actionInfo, "searchResult"), "data"), "editorId")
+    return Search.GetResultEditorId(JMap.getObj(actionInfo, "searchResult"))
 endFunction
 
 ; string function GetProviderName(int resultInfo)
