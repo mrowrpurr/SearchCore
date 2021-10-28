@@ -138,17 +138,14 @@ Form[] function GetAllForms(int resultInfo)
     return theFormArray
 endFunction
 
-
-
-; Form function GetForm(int resultInfo)
-; endFunction
-
-; string function GetFormId(int resultInfo)
-; endFunction
-
 string function GetEditorId(int actionInfo)
     return Search.GetResultEditorId(JMap.getObj(actionInfo, "searchResult"))
 endFunction
 
-; string function GetProviderName(int resultInfo)
-; endFunction
+string function GetFormId(int actionInfo)
+    return Search.GetResultFormId(JMap.getObj(actionInfo, "searchResult"))
+endFunction
+
+Form function GetForm(int actionInfo)
+    return FormHelper.HexToForm(GetFormId(actionInfo))
+endFunction
