@@ -21,12 +21,6 @@ string property ActionName
     endFunction
 endProperty
 
-Actor property PlayerRef
-    Actor function get()
-        return GetActorReference()
-    endFunction
-endProperty
-
 event OnSearchActionBaseInit()
     OnActionInit()
     ListenForSearchAction(ActionName, "OnSearchAction")

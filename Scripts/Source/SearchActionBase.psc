@@ -12,6 +12,12 @@ string property SEARCH_ACTION_SKSE_MOD_EVENT_PREFIX = "Search_Action_" autoReado
 string[] _actionNames
 string[] _callbackFunctionNames
 
+Actor property PlayerRef
+    Actor function get()
+        return GetActorReference()
+    endFunction
+endProperty
+
 ; Do **NOT** override this function.
 ;
 ; For initialization, please override `OnSearchActionBaseInit` instead.
