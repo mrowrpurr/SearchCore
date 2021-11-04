@@ -81,13 +81,17 @@ event OnSearchQuery(string query, int searchResultArray)
     JMap.setStr(resultSet, "done", "true")
 endEvent
 
-function AddSearchResult(int resultSet, string category, string text, string name = "", string formId = "", string editorId = "", int customData = 0)
+function AddSearchResult(int resultSet, string category, string text, string name = "", string formId = "", string editorId = "", Form formValue = None, int customData = 0)
     int resultData = JMap.object()
     Search.AddSearchResult(resultSet, ProviderName, category, text, resultData)
     JMap.setStr(resultData, "text", text)
     JMap.setStr(resultData, "name", name)
-    JMap.setStr(resultData, "formId", formId)
-    JMap.setStr(resultData, "editorId", editorId)
+    if formId
+        JMap.setStr(resultData, "formId", formId)
+    endIf
+    if formValue
+        JMap.setForm(resultData, "form", formValue)
+    endIf
 endFunction
 
 function AddResultSetKeyword(int resultSet, string resultSetKeyword)

@@ -147,8 +147,24 @@ string function GetResultDataString(int result, string propertyName) global
     return JMap.getStr(JMap.getObj(result, "data"), propertyName)
 endFunction
 
+int function GetResultDataInt(int result, string propertyName) global
+    return JMap.getInt(JMap.getObj(result, "data"), propertyName)
+endFunction
+
+float function GetResultDataFloat(int result, string propertyName) global
+    return JMap.getFlt(JMap.getObj(result, "data"), propertyName)
+endFunction
+
+Form function GetResultDataForm(int result, string propertyName) global
+    return JMap.getForm(JMap.getObj(result, "data"), propertyName)
+endFunction
+
 string function GetResultFormId(int result) global
     return GetResultDataString(result, "formId")
+endFunction
+
+Form function GetResultForm(int result) global
+    return GetResultDataForm(result, "form")
 endFunction
 
 string function GetResultEditorId(int result) global
