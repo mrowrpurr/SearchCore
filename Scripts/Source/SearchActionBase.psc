@@ -163,8 +163,11 @@ Form[] function GetAllForms(int resultInfo)
 
     int searchResult = GetSearchResult(resultInfo)
     if searchResult
-        string formId = Search.GetResultFormId(searchResult)
-        Form theForm  = FormHelper.HexToForm(formId)
+        Form theForm = Search.GetResultForm(searchResult)
+        if ! theForm
+            string formId = Search.GetResultFormId(searchResult)
+            theForm  = FormHelper.HexToForm(formId)
+        endIf
         if theForm
             JArray.addForm(theForms, theForm)
         endIf
@@ -187,8 +190,11 @@ Form[] function GetAllForms(int resultInfo)
                 int searchResultSetCategoryResultIndex = 0
                 while searchResultSetCategoryResultIndex < searchResultSetCategoryResultCount
                     searchResult = Search.GetNthCategoryResultForSearchResultSet(searchResultSet, searchResultSetCategoryName, searchResultSetCategoryResultIndex)
-                    string formId    = Search.GetResultFormId(searchResult)
-                    Form theForm     = FormHelper.HexToForm(formId)
+                    Form theForm = Search.GetResultForm(searchResult)
+                    if ! theForm
+                        string formId = Search.GetResultFormId(searchResult)
+                        theForm = FormHelper.HexToForm(formId)
+                    endIf
                     if theForm
                         JArray.addForm(theForms, theForm)
                     endIf
@@ -215,11 +221,24 @@ string function GetDisplayText(int actionInfo)
 endFunction
 
 string function GetFormId(int actionInfo)
-    return Search.GetResultFormId(JMap.getObj(actionInfo, "searchResult"))
+    string formId = Search.GetResultFormId(JMap.getObj(actionInfo, "searchResult"))
+    if formId
+        return formId
+    else
+        Form theForm = Search.GetResultForm(JMap.getObj(actionInfo, "searchResult"))
+        if theForm
+            return FormHelper.FormToHex(theForm)
+        endIf
+    endIf
 endFunction
 
 Form function GetForm(int actionInfo)
-    return FormHelper.HexToForm(GetFormId(actionInfo))
+    Form theForm = Search.GetResultForm(JMap.getObj(actionInfo, "searchResult"))
+    if theForm
+        return theForm
+    else
+        return FormHelper.HexToForm(GetFormId(actionInfo))
+    endIf
 endFunction
 
 bool function IsSearchResult(int actionInfo)
