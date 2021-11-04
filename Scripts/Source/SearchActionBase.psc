@@ -12,11 +12,49 @@ string property SEARCH_ACTION_SKSE_MOD_EVENT_PREFIX = "Search_Action_" autoReado
 string[] _actionNames
 string[] _callbackFunctionNames
 
+string[] _onUpdateActions
+int[]    _onUpdateActionInfos
+
 Actor property PlayerRef
     Actor function get()
         return GetActorReference()
     endFunction
 endProperty
+
+event OnUpdate()
+    if _onUpdateActions
+        while _onUpdateActions
+            string actionName = _onUpdateActions[0]
+            int    actionInfo = _onUpdateActionInfos[0]
+            InvokeAction(actionName, actionInfo)
+            _onUpdateActions = Utility.ResizeStringArray(_onUpdateActions, _onUpdateActions.Length - 1)
+            _onUpdateActionInfos = Utility.ResizeIntArray(_onUpdateActionInfos, _onUpdateActionInfos.Length - 1)
+        endWhile
+    endIf
+endEvent
+
+; Invokes another action provided its name and the `actionInfo` to pass along
+function InvokeAction(string actionName, int actionInfo)
+    int actionEvent = ModEvent.Create(SEARCH_ACTION_SKSE_MOD_EVENT_PREFIX + actionName)
+    ModEvent.PushInt(actionEvent, actionInfo)
+    ModEvent.Send(actionEvent)
+endFunction
+
+; This will invoke an action after the specified `delay` time
+function InvokeActionAsync(string actionName, int actionInfo, float delay = 0.1)
+    if _onUpdateActions
+        _onUpdateActions = Utility.ResizeStringArray(_onUpdateActions, _onUpdateActions.Length + 1)
+        _onUpdateActions[_onUpdateActions.Length - 1] = actionName
+        _onUpdateActionInfos = Utility.ResizeIntArray(_onUpdateActionInfos, _onUpdateActionInfos.Length + 1)
+        _onUpdateActionInfos[_onUpdateActionInfos.Length - 1] = actionInfo
+    else
+        _onUpdateActions = new string[1]
+        _onUpdateActions[0] = actionName
+        _onUpdateActionInfos = new int[1]
+        _onUpdateActionInfos[0] = actionInfo
+    endIf
+    RegisterForSingleUpdate(delay)
+endFunction
 
 ; Do **NOT** override this function.
 ;
